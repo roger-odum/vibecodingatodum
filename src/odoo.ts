@@ -26,7 +26,9 @@ export class OdooClient {
   ) {}
 
   private async call(service: string, method: string, args: unknown[]): Promise<any> {
-    const res = await this.doFetch(`${this.cfg.url.replace(/\/+$/, "")}/jsonrpc`, {
+    // Alleen het domein telt: wie https://x.odoo.com/odoo (de adresbalk van
+    // de webclient) invult, zou anders naar /odoo/jsonrpc posten.
+    const res = await this.doFetch(`${new URL(this.cfg.url).origin}/jsonrpc`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({

@@ -26,8 +26,8 @@
   // het toegangstoken voor /mcp (MCP_TOKEN) zijn dat wel: die komen als
   // GitHub-secret binnen, zie de README.
   "vars": {
-    "ODOO_URL": "",       // bv. https://jouwbedrijf.odoo.com
-    "ODOO_DB": "",        // databasenaam, bij Odoo Online meestal 'jouwbedrijf'
+    "ODOO_URL": "https://rjs-management-bv1.odoo.com",
+    "ODOO_DB": "rjs-management-bv1",  // Odoo Online: gelijk aan het subdomein
     "ODOO_USERNAME": ""   // login van de API-gebruiker
   }
 

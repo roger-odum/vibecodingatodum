@@ -39,6 +39,13 @@ describe("OdooClient", () => {
     expect(calls[1].args).toEqual(["x", 7, "k", "res.partner", "search_read", [[["is_company", "=", true]]], { fields: ["name"], limit: 5 }]);
   });
 
+  it("post naar /jsonrpc op het domein, ook als de URL een pad heeft", async () => {
+    const urls: string[] = [];
+    const doFetch = (async (u: string) => (urls.push(u), Response.json({ result: 1 }))) as unknown as typeof fetch;
+    await new OdooClient({ url: "https://rjs-management-bv1.odoo.com/odoo", db: "x", username: "u", apiKey: "k" }, doFetch).login();
+    expect(urls).toEqual(["https://rjs-management-bv1.odoo.com/jsonrpc"]);
+  });
+
   it("geeft een duidelijke fout als inloggen mislukt", async () => {
     const { client } = fakeOdoo(() => false);
     await expect(client.login()).rejects.toThrow(/Inloggen bij Odoo mislukt/);
