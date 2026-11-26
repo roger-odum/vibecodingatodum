@@ -28,7 +28,7 @@
   "vars": {
     "ODOO_URL": "https://rjs-management-bv1.odoo.com",
     "ODOO_DB": "rjs-management-bv1",  // Odoo Online: gelijk aan het subdomein
-    "ODOO_USERNAME": ""   // login van de API-gebruiker
+    "ODOO_USERNAME": "rjsmanagementbvba@skynet.be"
   }
 
   // Bindings komen hier zodra je ze nodig hebt:
