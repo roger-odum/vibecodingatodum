@@ -100,8 +100,8 @@ describe("tool odoo_ouderdomsanalyse", () => {
     );
     const { result } = (await res.json()) as any;
     expect(gevraagd[3]).toBe("account.move");
-    expect(gevraagd[5][0][0]).toEqual(["move_type", "in", ["in_invoice", "in_refund"]]); // standaard AP
-    expect(result.content[0].text).toContain("Crediteuren (AP)");
+    expect(gevraagd[5][0][0]).toEqual(["move_type", "in", ["out_invoice", "out_refund"]]); // standaard AR
+    expect(result.content[0].text).toContain("Debiteuren (AR)");
     expect(result.structuredContent.totaal.d31_60).toBe(100);
   });
 });

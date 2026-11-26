@@ -129,7 +129,7 @@ function registerOdooTools(server: McpServer, odoo: OdooClient) {
         "Creditnota's tellen negatief. Het saldo is het huidige openstaande saldo; de peildatum " +
         "bepaalt alleen de indeling in ouderdomsklassen.",
       inputSchema: {
-        soort: z.enum(["AP", "AR"]).default("AP").describe("AP = leveranciers (crediteuren), AR = klanten (debiteuren)"),
+        soort: z.enum(["AP", "AR"]).default("AR").describe("AP = leveranciers (crediteuren), AR = klanten (debiteuren)"),
         partner: z.string().optional().describe("Optioneel: alleen partners waarvan de naam dit bevat"),
         peildatum: z
           .string()
