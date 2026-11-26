@@ -59,3 +59,20 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_LABS }}
         run: npx wrangler deploy
+
+      # Secrets van de Worker, vanuit GitHub-secrets op deze repository.
+      # Ontbreekt er één, dan blijft de bestaande waarde op Cloudflare staan.
+      - name: Worker-secrets bijwerken
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_LABS }}
+          ODOO_API_KEY: ${{ secrets.ODOO_API_KEY }}
+          MCP_TOKEN: ${{ secrets.MCP_TOKEN }}
+        run: |
+          node -e '
+            const out = {};
+            for (const k of ["ODOO_API_KEY", "MCP_TOKEN"]) if (process.env[k]) out[k] = process.env[k];
+            require("fs").writeFileSync("secrets.json", JSON.stringify(out));
+            console.log("Bij te werken:", Object.keys(out).join(", ") || "(geen)");
+          '
+          if [ "$(cat secrets.json)" != "{}" ]; then npx wrangler secret bulk secrets.json; fi
+          rm -f secrets.json

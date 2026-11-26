@@ -56,6 +56,40 @@ een deploy falen op dat token, laat het Olivier weten.
 tests, zonder dat je een Worker moet starten. Zie `src/index.ts` en
 `test/index.test.ts`.
 
+## MCP-server en Odoo
+
+Deze Worker is een **MCP-server** op `https://<naam>.lab.odum.cloud/mcp`
+(Streamable HTTP, stateless). Een AI-client (Claude, Cursor, …) verbindt
+daarmee en krijgt deze tools:
+
+| Tool | Wat |
+|---|---|
+| `zeg_hallo`, `huidige_tijd` | Voorbeelden, om te testen of de verbinding werkt |
+| `odoo_zoeken` | `search_read` op een Odoo-model, met domein, velden, limiet, sortering |
+| `odoo_tellen` | `search_count` op een Odoo-model |
+| `odoo_velden` | `fields_get`: welke velden een model heeft |
+| `odoo_ouderdomsanalyse` | Openstaande facturen als aging-lijst per partner (niet vervallen / 1–30 / 31–60 / 61–90 / >90 dagen). `soort`: `AR` (klanten, standaard) of `AP` (leveranciers); optioneel `partner`, `peildatum`, `details` |
+
+De Odoo-tools zijn **alleen-lezen**. Schrijven naar Odoo is een aparte
+beslissing, met een eigen tool per handeling.
+
+**Instellen**
+
+1. In Odoo: maak (bij voorkeur) een aparte gebruiker met alleen leesrechten
+   op wat nodig is, en maak voor die gebruiker een API-sleutel aan
+   (Voorkeuren → Account-beveiliging → Nieuwe API-sleutel).
+2. `wrangler.jsonc` → `vars`: vul `ODOO_URL`, `ODOO_DB` en `ODOO_USERNAME` in.
+3. GitHub → Settings → Secrets → Actions, op deze repository:
+   - `ODOO_API_KEY` — de API-sleutel uit stap 1
+   - `MCP_TOKEN` — een lange willekeurige string (`openssl rand -hex 32`)
+4. Push naar `main`. De deploy zet beide secrets op de Worker.
+
+`/health` toont of Odoo geconfigureerd is. Zonder `MCP_TOKEN` blijft `/mcp`
+dicht (401): het endpoint geeft toegang tot Odoo-data, dus het staat nooit
+open. Clients sturen `Authorization: Bearer <MCP_TOKEN>` mee.
+
+Lokaal: zet dezelfde waarden in `.dev.vars` (staat in `.gitignore`).
+
 ## Iets nodig hebben
 
 Een database, sleutel-waardeopslag of bestandsopslag voeg je toe in
