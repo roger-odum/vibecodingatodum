@@ -20,7 +20,16 @@
     { "pattern": "mijn-project.lab.odum.cloud", "custom_domain": true }
   ],
 
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+
+  // Odoo-verbinding. Dit zijn géén geheimen. De API-key (ODOO_API_KEY) en
+  // het toegangstoken voor /mcp (MCP_TOKEN) zijn dat wel: die komen als
+  // GitHub-secret binnen, zie de README.
+  "vars": {
+    "ODOO_URL": "",       // bv. https://jouwbedrijf.odoo.com
+    "ODOO_DB": "",        // databasenaam, bij Odoo Online meestal 'jouwbedrijf'
+    "ODOO_USERNAME": ""   // login van de API-gebruiker
+  }
 
   // Bindings komen hier zodra je ze nodig hebt:
   // "d1_databases": [{ "binding": "DB", "database_name": "...", "database_id": "..." }],
