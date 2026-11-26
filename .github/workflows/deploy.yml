@@ -1,0 +1,61 @@
+name: deploy
+
+# In Labs deployt elke merge naar main vanzelf. Dat mag hier: er staat
+# niets in dit account dat een klant in productie gebruikt, en snel
+# kunnen tonen is het hele punt.
+#
+# Productie werkt bewust andersom — daar is deployen een beslissing die
+# iemand neemt, niet een gevolg van een merge.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Het sjabloon deployt zichzelf niet. Anders zet elke push hierheen een
+    # Worker `lab-mijn-project` neer op een adres dat van niemand is. Zodra
+    # je via "Use this template" je eigen repository maakt, verschilt deze
+    # naam en draait de deploy gewoon. Je hoeft hier niets aan te doen.
+    if: github.repository != 'Odum-digital/odum-lab-starter'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install --no-audit --no-fund
+
+      # Dezelfde controles als in ci.yml, met opzet opnieuw. Deze workflow
+      # kan handmatig op elke ref gestart worden, ook een die nooit een
+      # pull request zag.
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Controleer dat het token beschikbaar is
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_LABS }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN_LABS ontbreekt. Dit is een"
+            echo "::error::organization secret op Odum-digital. Vraag Olivier"
+            echo "::error::om deze repository toegang te geven."
+            exit 1
+          fi
+
+      - name: Welk account en welk token
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_LABS }}
+        run: npx wrangler whoami
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_LABS }}
+        run: npx wrangler deploy

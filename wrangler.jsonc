@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // 1. Hernoem dit naar je project. Kleine letters en koppeltekens.
+  "name": "lab-mijn-project",
+
+  // Odum Labs. Niet wijzigen — dit is het account waar PoC's thuishoren.
+  "account_id": "a453e0f692786a7c194861d306516b4a",
+
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-22",
+
+  // Geen workers.dev-adres erbij. Eén project, één URL, geen tweede
+  // link die rondzwerft en die niemand beheert.
+  "workers_dev": false,
+
+  // 2. Zet hier dezelfde naam als hierboven. Cloudflare maakt het
+  //    DNS-record vanzelf aan bij de eerste deploy.
+  "routes": [
+    { "pattern": "mijn-project.lab.odum.cloud", "custom_domain": true }
+  ],
+
+  "observability": { "enabled": true }
+
+  // Bindings komen hier zodra je ze nodig hebt:
+  // "d1_databases": [{ "binding": "DB", "database_name": "...", "database_id": "..." }],
+  // "kv_namespaces": [{ "binding": "KV", "id": "..." }],
+  // "r2_buckets":    [{ "binding": "BUCKET", "bucket_name": "..." }]
+}

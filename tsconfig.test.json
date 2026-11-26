@@ -1,0 +1,23 @@
+// Waarom de tests een eigen configuratie hebben.
+//
+// `tsconfig.json` kent bewust alleen @cloudflare/workers-types. Dat is geen slordigheid maar
+// een vangrail: Worker-code die naar `fs`, `Buffer`, `process.env` of Nodes variant van
+// `setTimeout` grijpt, hoort NIET te typechecken — op Cloudflare bestaat dat niet, en de fout
+// zou pas bij de eerste request opduiken.
+//
+// De tests draaien wél in Node. Sommige lezen bestanden van schijf — no-secrets-in-config.test.ts
+// scant deze hele repository — en die hebben @types/node nodig.
+//
+// De voor de hand liggende oplossing, `node` bij de types in tsconfig.json zetten, geeft die
+// types ook aan `src`. Dan is de vangrail weg en zegt de compiler niets meer over precies het
+// ene dat je van hem wil horen.
+//
+// Dus: `src` houdt het smalle Workers-oppervlak, de tests krijgen dat van Node.
+// `npm run typecheck` draait ze allebei.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types", "node"]
+  },
+  "include": ["test", "src"]
+}
