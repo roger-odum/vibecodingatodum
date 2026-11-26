@@ -2,6 +2,14 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { greet } from "./logic";
 import { OdooClient, OdooError } from "./odoo";
+import {
+  agingAlsTabel,
+  berekenAging,
+  FACTUUR_VELDEN,
+  openstaandDomein,
+  vandaagIn,
+  type OdooFactuur,
+} from "./aging";
 
 /**
  * De logica van elke tool staat los van MCP (`src/logic.ts`, `src/odoo.ts`).
@@ -108,6 +116,54 @@ function registerOdooTools(server: McpServer, odoo: OdooClient) {
       annotations: { readOnlyHint: true },
     },
     ({ model, domein }) => run(() => odoo.searchCount(model, domein)),
+  );
+
+  server.registerTool(
+    "odoo_ouderdomsanalyse",
+    {
+      title: "Odoo: openstaande facturen, ouderdomsanalyse per partner",
+      description:
+        "Haalt alle geboekte, nog openstaande facturen op en toont een aging-lijst per partner: " +
+        "bedragen in bedrijfsvaluta, ingedeeld in niet vervallen / 1–30 / 31–60 / 61–90 / >90 dagen " +
+        "na vervaldatum. AP = crediteuren (leveranciersfacturen), AR = debiteuren (klantfacturen). " +
+        "Creditnota's tellen negatief. Het saldo is het huidige openstaande saldo; de peildatum " +
+        "bepaalt alleen de indeling in ouderdomsklassen.",
+      inputSchema: {
+        soort: z.enum(["AP", "AR"]).default("AP").describe("AP = leveranciers (crediteuren), AR = klanten (debiteuren)"),
+        partner: z.string().optional().describe("Optioneel: alleen partners waarvan de naam dit bevat"),
+        peildatum: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional()
+          .describe("YYYY-MM-DD, standaard vandaag (Europe/Brussels)"),
+        details: z.boolean().default(false).describe("Ook de afzonderlijke facturen per partner tonen"),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async ({ soort, partner, peildatum, details }) => {
+      const MAX = 5000;
+      try {
+        const rows = (await odoo.searchRead(
+          "account.move",
+          openstaandDomein(soort, partner),
+          FACTUUR_VELDEN,
+          MAX,
+          "invoice_date_due asc",
+        )) as OdooFactuur[];
+        const rapport = berekenAging(soort, rows, peildatum ?? vandaagIn());
+        let tekst = agingAlsTabel(rapport, details);
+        if (rows.length >= MAX) {
+          tekst += `\n\n⚠️ Afgekapt op ${MAX} facturen: de cijfers zijn onvolledig. Filter op partner.`;
+        }
+        return {
+          content: [{ type: "text" as const, text: tekst }],
+          structuredContent: rapport as unknown as Record<string, unknown>,
+        };
+      } catch (e) {
+        const msg = e instanceof OdooError ? e.message : `Fout bij Odoo: ${String(e)}`;
+        return { isError: true, content: [{ type: "text" as const, text: msg }] };
+      }
+    },
   );
 
   server.registerTool(

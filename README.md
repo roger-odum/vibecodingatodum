@@ -68,6 +68,7 @@ daarmee en krijgt deze tools:
 | `odoo_zoeken` | `search_read` op een Odoo-model, met domein, velden, limiet, sortering |
 | `odoo_tellen` | `search_count` op een Odoo-model |
 | `odoo_velden` | `fields_get`: welke velden een model heeft |
+| `odoo_ouderdomsanalyse` | Openstaande facturen als aging-lijst per partner (niet vervallen / 1–30 / 31–60 / 61–90 / >90 dagen). `soort`: `AP` (leveranciers, standaard) of `AR` (klanten); optioneel `partner`, `peildatum`, `details` |
 
 De Odoo-tools zijn **alleen-lezen**. Schrijven naar Odoo is een aparte
 beslissing, met een eigen tool per handeling.
