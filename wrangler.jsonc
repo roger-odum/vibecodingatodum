@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
 
   // 1. Hernoem dit naar je project. Kleine letters en koppeltekens.
-  "name": "lab-mijn-project",
+  "name": "rjs-odoo-mcp",
 
   // Odum Labs. Niet wijzigen — dit is het account waar PoC's thuishoren.
   "account_id": "a453e0f692786a7c194861d306516b4a",
@@ -17,7 +17,7 @@
   // 2. Zet hier dezelfde naam als hierboven. Cloudflare maakt het
   //    DNS-record vanzelf aan bij de eerste deploy.
   "routes": [
-    { "pattern": "mijn-project.lab.odum.cloud", "custom_domain": true }
+    { "pattern": "rjs-odoo-mcp.lab.odum.cloud", "custom_domain": true }
   ],
 
   "observability": { "enabled": true },
